@@ -2,7 +2,7 @@ package pl.switcher.io;
 
 import lombok.extern.log4j.Log4j2;
 import pl.switcher.exceptions.WrongFilePropertiesError;
-import pl.switcher.model.DeviceProperties;
+import pl.switcher.model.DeviceDto;
 import pl.switcher.model.DeviceType;
 
 import java.io.File;
@@ -12,22 +12,24 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
 @Log4j2
 public class DeviceFromFileReader {
-    private  File pathToFile = new File(System.getProperty("user.dir") + "/ip.txt");
+    private File pathToFile;
     private Scanner scanner;
 
 
-    public List<DeviceProperties> readPropertiesFromFile(){
-        List<DeviceProperties> devicePropertiesList = new ArrayList<>();
+    public List<DeviceDto> readPropertiesFromFile(String regex, String fileType){
+        List<DeviceDto> devicePropertiesList = new ArrayList<>();
+        pathToFile= new File(System.getProperty("user.dir") + "/ip." + fileType);
         try {
             scanner = new Scanner(pathToFile);
             while (scanner.hasNextLine()){
-                String[] properties = scanner.nextLine().split(":");
-                DeviceProperties deviceProperties = createDevice(properties);
+                String[] properties = scanner.nextLine().split(regex);
+                DeviceDto deviceProperties = validateAndCreateDevice(properties);
                 log.info("Create new devices from file properties : " + deviceProperties);
                 devicePropertiesList.add(deviceProperties);
             }
@@ -39,16 +41,17 @@ public class DeviceFromFileReader {
         return devicePropertiesList;
     }
 
-    private DeviceProperties createDevice(String[] properties) {
-        if(properties.length <3 || !isIPv4Address(properties[1]) || !isNumeric(properties[2]) || DeviceType.isSupportDevice(properties[0])==null) {
+    private DeviceDto validateAndCreateDevice(String[] properties) {
+        String deviceName = properties[0];
+        String deviceIpAddress = properties[1];
+        String deviceId= properties[2];
+
+        if(properties.length <3 || !isIPv4Address(deviceIpAddress) || !isNumeric(deviceId) || isSupportDevice( deviceName)==null) {
             log.error("Wrong parameters in file " + pathToFile);
             throw new WrongFilePropertiesError("Wrong parameters in file " + pathToFile);
         }
 
-        String deviceName = properties[0];
-        String deviceIpAddress = properties[1];
-        String deviceId= properties[2];
-        return new DeviceProperties(deviceName,deviceIpAddress,deviceId);
+        return new DeviceDto(deviceName,deviceIpAddress,deviceId);
     }
 
     private boolean isIPv4Address(String address) {
@@ -72,6 +75,11 @@ public class DeviceFromFileReader {
             log.error("Wrong Screen ID !");
             return false;
         }
+    }
+
+    private static DeviceType isSupportDevice(String deviceName) {
+        DeviceType[] values = DeviceType.values();
+        return Arrays.stream(values).filter(d->deviceName.equalsIgnoreCase(d.getName())).findAny().orElse(null);
     }
 
 

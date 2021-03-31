@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class DeviceProperties {
+public class DeviceDto {
     private String deviceName;
     private String deviceIpAddress;
     private String deviceId;
