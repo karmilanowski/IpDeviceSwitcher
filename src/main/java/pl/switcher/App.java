@@ -1,7 +1,7 @@
 package pl.switcher;
 
 import pl.switcher.io.DeviceFromFileReader;
-import pl.switcher.model.DeviceDto;
+import pl.switcher.dto.DeviceDto;
 
 import java.util.List;
 

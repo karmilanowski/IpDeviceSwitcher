@@ -1,4 +1,4 @@
-package pl.switcher.model;
+package pl.switcher.dto;
 
 
 import lombok.*;

@@ -2,13 +2,12 @@ package pl.switcher.io;
 
 import lombok.extern.log4j.Log4j2;
 import pl.switcher.exceptions.WrongFilePropertiesError;
-import pl.switcher.model.DeviceDto;
+import pl.switcher.dto.DeviceDto;
 import pl.switcher.model.DeviceType;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.Inet4Address;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -35,13 +34,12 @@ public class DeviceFromFileReader {
             }
 
         } catch (FileNotFoundException e) {
-            log.error("File " + pathToFile + " doesnt exist !");
             e.getMessage();
         }
         return devicePropertiesList;
     }
 
-    private DeviceDto validateAndCreateDevice(String[] properties) {
+    protected DeviceDto validateAndCreateDevice(String[] properties) {
         String deviceName = properties[0];
         String deviceIpAddress = properties[1];
         String deviceId= properties[2];
@@ -54,30 +52,30 @@ public class DeviceFromFileReader {
         return new DeviceDto(deviceName,deviceIpAddress,deviceId);
     }
 
-    private boolean isIPv4Address(String address) {
+    protected boolean isIPv4Address(String address) {
         if (address.isEmpty()) {
             return false;
         }
         try {
             Object res = InetAddress.getByName(address);
-            return res instanceof Inet4Address || res instanceof Inet6Address;
+            return res instanceof Inet4Address;
         } catch (final UnknownHostException exception) {
             log.error("Wrong Screen IP Address !");
             return false;
         }
     }
 
-    private boolean isNumeric(String screenId){
+    protected boolean isNumeric(String screenId){
         try {
             int Value = Integer.parseInt(screenId);
             return true;
         } catch (NumberFormatException e) {
-            log.error("Wrong Screen ID !");
+            log.error("Screen ID is not a number !");
             return false;
         }
     }
 
-    private static DeviceType isSupportDevice(String deviceName) {
+    protected static DeviceType isSupportDevice(String deviceName) {
         DeviceType[] values = DeviceType.values();
         return Arrays.stream(values).filter(d->deviceName.equalsIgnoreCase(d.getName())).findAny().orElse(null);
     }
