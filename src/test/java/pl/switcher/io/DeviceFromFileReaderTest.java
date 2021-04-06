@@ -1,11 +1,11 @@
 package pl.switcher.io;
 
 
-import org.assertj.core.api.Assertions;
+import static org.assertj.core.api.Assertions.*;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import pl.switcher.model.DeviceType;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,22 +15,22 @@ class DeviceFromFileReaderTest {
     DeviceFromFileReader deviceFromFileReader = new DeviceFromFileReader();
 
     @DisplayName("Should not be Ipv4 address")
-    @ValueSource(strings = {"192.168.1.-1","192.168.1.256"})
+    @ValueSource(strings = {"192.168.1.-1","192.168.1.a","10.0.1","0.0.0.0","192.168.1.256"})
     @ParameterizedTest(name= "{arguments} should not be Ipv4 address")
     void shouldReturnFalseFromIncorrectIpv4Address(String ipAddress){
         boolean IPv4 = deviceFromFileReader.isIPv4Address(ipAddress);
 
-        Assertions.assertThat(IPv4).isFalse();
+        assertThat(IPv4).isFalse();
 
     }
 
     @DisplayName("Should be Ipv4 address")
-    @ValueSource(strings = {"192.168.1.1","192.168.1.255"})
+    @ValueSource(strings = {"192.168.1.1","10.0.0.1","1.0.0.1","192.168.1.255"})
     @ParameterizedTest(name= "{arguments} should be Ipv4 address")
     void shouldReturnTrueFromCorrectIpv4Address(String ipAddress){
         boolean IPv4 = deviceFromFileReader.isIPv4Address(ipAddress);
 
-        assertTrue(IPv4);
+        assertThat(IPv4).isTrue();
     }
 
     @DisplayName("Should not be Screen ID number")
@@ -39,7 +39,7 @@ class DeviceFromFileReaderTest {
     void shouldReturnFalseFromIncorrectScreenIdNumber(String screenID){
         boolean isScreenIdNumber = deviceFromFileReader.isScreenIdNumber(screenID);
 
-        assertFalse(isScreenIdNumber);
+        assertThat(isScreenIdNumber).isFalse();
 
     }
 
@@ -49,15 +49,16 @@ class DeviceFromFileReaderTest {
     void shouldReturnTrueFromCorrectScreenIdNumber(String screenID){
         boolean isScreenIdNumber = deviceFromFileReader.isScreenIdNumber(screenID);
 
-        assertTrue(isScreenIdNumber);
+        assertThat(isScreenIdNumber).isTrue();
     }
 
     @DisplayName("Should be not supported devices")
     @ValueSource(strings = {"Samsung","Lga","Atena"})
     @ParameterizedTest(name= "{arguments} should be not supported devices")
     void shouldReturnNullFromNotSupportedDevice(String deviceName){
+        DeviceType supportDevice = deviceFromFileReader.isSupportDevice(deviceName);
 
-        assertNull(deviceFromFileReader.isSupportDevice(deviceName));
+        assertThat(supportDevice).isNull();
 
     }
 
@@ -65,7 +66,9 @@ class DeviceFromFileReaderTest {
     @ValueSource(strings = {"Aten","ATEN","lG","LG","Lg"})
     @ParameterizedTest(name= "{arguments} should be supported devices")
     void shouldReturnNotNullFromSupportedDevice(String deviceName){
-        assertNotNull(deviceFromFileReader.isSupportDevice(deviceName));
+        DeviceType supportDevice = deviceFromFileReader.isSupportDevice(deviceName);
+
+        assertThat(supportDevice).isNotNull();
 
     }
 

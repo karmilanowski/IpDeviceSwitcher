@@ -21,13 +21,13 @@ public class DeviceFromFileReader {
     private Scanner scanner;
 
 
-    public List<DeviceDto> readPropertiesFromFile(String regex, String fileType){
+    public List<DeviceDto> readPropertiesFromFile(String argumentSeparator, String fileType){
         List<DeviceDto> devicePropertiesList = new ArrayList<>();
         pathToFile= new File(System.getProperty("user.dir") + "/ip." + fileType);
         try {
             scanner = new Scanner(pathToFile);
             while (scanner.hasNextLine()){
-                String[] properties = scanner.nextLine().split(regex);
+                String[] properties = scanner.nextLine().split(argumentSeparator);
                 DeviceDto deviceProperties = validateAndCreateDevice(properties);
                 log.info("Create new devices from file properties : " + deviceProperties);
                 devicePropertiesList.add(deviceProperties);
