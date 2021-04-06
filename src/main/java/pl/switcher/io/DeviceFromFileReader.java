@@ -44,7 +44,7 @@ public class DeviceFromFileReader {
         String deviceIpAddress = properties[1];
         String deviceId= properties[2];
 
-        if(properties.length <3 || !isIPv4Address(deviceIpAddress) || !isNumeric(deviceId) || isSupportDevice( deviceName)==null) {
+        if(properties.length <3 || !isIPv4Address(deviceIpAddress) || !isScreenIdNumber(deviceId) || isSupportDevice( deviceName)==null) {
             log.error("Wrong parameters in file " + pathToFile);
             throw new WrongFilePropertiesError("Wrong parameters in file " + pathToFile);
         }
@@ -52,22 +52,27 @@ public class DeviceFromFileReader {
         return new DeviceDto(deviceName,deviceIpAddress,deviceId);
     }
 
-    protected boolean isIPv4Address(String address) {
-        if (address.isEmpty()) {
+    protected boolean isIPv4Address(String ipAddress) {
+        if (ipAddress.isEmpty()) {
             return false;
         }
         try {
-            Object res = InetAddress.getByName(address);
+            Object res = InetAddress.getByName(ipAddress);
             return res instanceof Inet4Address;
         } catch (final UnknownHostException exception) {
-            log.error("Wrong Screen IP Address !");
+            log.error("Wrong Device IP Address !");
             return false;
         }
     }
 
-    protected boolean isNumeric(String screenId){
+
+    //Screen ID from scope 1 to 50
+    protected boolean isScreenIdNumber(String screenId){
         try {
-            int Value = Integer.parseInt(screenId);
+            int value = Integer.parseInt(screenId);
+            if(value<=0 || value > 50) {
+                return false;
+            }
             return true;
         } catch (NumberFormatException e) {
             log.error("Screen ID is not a number !");
@@ -75,7 +80,7 @@ public class DeviceFromFileReader {
         }
     }
 
-    protected static DeviceType isSupportDevice(String deviceName) {
+    protected DeviceType isSupportDevice(String deviceName) {
         DeviceType[] values = DeviceType.values();
         return Arrays.stream(values).filter(d->deviceName.equalsIgnoreCase(d.getName())).findAny().orElse(null);
     }
